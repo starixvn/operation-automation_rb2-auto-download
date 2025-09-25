@@ -1,0 +1,22 @@
+# RB2 Auto Download - Python Dependencies
+
+# GUI Automation
+pywinauto>=0.6.8
+pyautogui>=0.9.54
+pywin32>=306
+
+# Image Processing and OCR
+Pillow>=10.0.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+pytesseract>=0.3.10
+
+# Standard libraries (included with Python)
+# - time
+# - datetime
+# - base64
+# - subprocess
+# - os
+# - glob
+# - json
+# - re

@@ -17,6 +17,7 @@ import numpy as np
 from datetime import datetime
 import base64
 from send_email_to_est import clear_all_files_in_rb2, send_email_to_est
+from excel_converter import convert_xls_to_xlsx
 def connect_and_maximize():
     
     """Connect to application and maximize, retry 3 times on failure"""
@@ -220,6 +221,8 @@ def handle_save_dialog(date_str, window_rect):
         time.sleep(2)
                       
         print(f"      ✅ Save completed: {filename}.xls")
+
+        convert_xls_to_xlsx(f"{filename}.xls", f"{filename}.xlsx", delete_original=True)
         
     except Exception as e:
         print(f"      ❌ Save handling failed: {e}")

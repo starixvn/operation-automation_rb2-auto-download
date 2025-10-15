@@ -21,8 +21,8 @@ def clear_all_files_in_rb2():
 def send_email_to_est():    
     SENDER_EMAIL = "jacob.phan@starixsoft.com"
     # WARNING: App Passwords should ideally be stored securely (e.g., using environment variables).
-    SENDER_PASSWORD = "" 
-    RECEIVER_EMAIL = "levi.vu@starixsoft.com;jacob.phan@starixsoft.com;toby.phan@starixsoft.com"
+    SENDER_PASSWORD = os.getenv("JACOB_APP_PASSWORD", "") 
+    RECEIVER_EMAIL = ["levi.vu@starixsoft.com", "jacob.phan@starixsoft.com", "toby.phan@starixsoft.com"]
     ATTACHMENT_DIR = "C:/RB2"
     SUBJECT = "RB2 Excel Report from Jacob"
     BODY_MESSAGE = "Dear EST,\n\nPlease find attached all RB2 Excel files \n\nBest regards,\nJacob"
@@ -31,13 +31,14 @@ def send_email_to_est():
     Connects to Gmail's SMTP server, finds all Excel files in the specified 
     directory, attaches them, and sends the email.
     """
-    print(f"Starting email process from {SENDER_EMAIL} to {RECEIVER_EMAIL}...")
+    print(f"Starting email process from {SENDER_EMAIL} to {', '.join(RECEIVER_EMAIL)}...")
     
     # 1. Find all Excel files in the directory
     # Searches for .xls, .xlsx, and .xlsm files
     search_path = os.path.join(ATTACHMENT_DIR, "*.xls*")
     excel_files = glob.glob(search_path)
     
+    print(f"APP_PASSWORD: {SENDER_PASSWORD} ")
     if not os.path.isdir(ATTACHMENT_DIR):
         print(f"Error: Directory '{ATTACHMENT_DIR}' does not exist.")
         return
@@ -50,7 +51,7 @@ def send_email_to_est():
     # 2. Setup the MIME message
     msg = MIMEMultipart()
     msg['From'] = SENDER_EMAIL
-    msg['To'] = RECEIVER_EMAIL
+    msg['To'] = ", ".join(RECEIVER_EMAIL)  # Convert list to comma-separated string for header
     msg['Subject'] = SUBJECT
     
     # Attach the text body. Using 'utf-8' for Vietnamese character support.
@@ -91,3 +92,5 @@ def send_email_to_est():
     finally:
         if 'server' in locals():
             server.quit()
+
+send_email_to_est()            

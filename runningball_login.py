@@ -16,7 +16,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 import base64
-from send_email_to_est import clear_all_files_in_rb2
+from send_email_to_est import clear_all_files_in_rb2, send_email_to_est
 def connect_and_maximize():
     
     """Connect to application and maximize, retry 3 times on failure"""
@@ -695,6 +695,7 @@ def main():
             print("🎉 Login process completed!")
         else:
             print("❌ Login process failed!")
+        send_email_to_est()
             
     except KeyboardInterrupt:
         print("\n⏹️ User interrupted operation")

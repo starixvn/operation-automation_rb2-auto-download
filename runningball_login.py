@@ -433,17 +433,17 @@ def perform_login(window_rect, username=None, password=None):
         print("✅ Login operation completed")
         
         # Click specified coordinates (370, 60)
-        print("🖱️ Click coordinates (370, 60)...")
-        click_x = 358   
-        click_y = 56
-        pyautogui.click(click_x, click_y)
-        time.sleep(1)
+        # print("🖱️ Click coordinates (370, 60)...")
+        # click_x = 358   
+        # click_y = 56
+        # pyautogui.click(click_x, click_y)
+        # time.sleep(1)
         
-        print("✅ SettingClick completed")
+        # print("✅ SettingClick completed")
         
-        # Handle timezone settings
-        print("🕐 Start handling timezone settings...")
-        handle_timezone_settings(window_rect)
+        # # Handle timezone settings
+        # print("🕐 Start handling timezone settings...")
+        # handle_timezone_settings(window_rect)
         
         # Click specified coordinates (200, 60)
         print("🖱️ Click coordinates (200, 60)...")
@@ -705,6 +705,7 @@ def main():
         # Clean up screenshots regardless of success or failure
         print("\n" + "=" * 40)
         cleanup_screenshots()
+        kill_runningball_process()
 
 if __name__ == "__main__":
     main()

@@ -16,7 +16,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 import base64
-
+from send_email_to_est import clear_all_files_in_rb2
 def connect_and_maximize():
     
     """Connect to application and maximize, retry 3 times on failure"""
@@ -260,19 +260,19 @@ def handle_timezone_settings(window_rect):
         
         # According to screenshot, Timezone dropdown position (estimated coordinates)
         # Dropdown on right side approximately x=370, y=270
-        timezone_dropdown_x = window_rect.left + 370
-        timezone_dropdown_y = window_rect.top + 240
+        timezone_dropdown_x = 366
+        timezone_dropdown_y = 246
         
         print(f"🎯 Click timezone dropdown: ({timezone_dropdown_x}, {timezone_dropdown_y})")
         pyautogui.click(timezone_dropdown_x, timezone_dropdown_y)
         time.sleep(1.5)
         
         # Select America/Puerto_Rico timezone
-        print("📍 Force select timezone: America/Puerto_Rico")
+        print("📍 Force select timezone: HongKong")
         
         # Method 1: Use keyboard quick search
         # Clear current input and directly enter complete timezone name
-        pyautogui.typewrite("America/Puerto_Rico", interval=0.05)
+        pyautogui.click(321, 331)
         time.sleep(1)
         
         # Press Enter to confirm selection
@@ -282,8 +282,8 @@ def handle_timezone_settings(window_rect):
         
         # Click green checkmark save button in bottom right
         # According to screenshot, green checkmark button is in bottom right
-        save_button_x = window_rect.left + window_rect.width() - 80  # Bottom right slightly left
-        save_button_y = window_rect.top + window_rect.height() - 50  # Bottom slightly up
+        save_button_x = 1843  # Bottom right slightly left
+        save_button_y = 1024  # Bottom slightly up
         
         print(f"✅ Click green checkmark save button: ({save_button_x}, {save_button_y})")
         pyautogui.click(save_button_x, save_button_y)
@@ -386,13 +386,13 @@ def perform_login(window_rect, username=None, password=None):
         
         # Input field position found from analysis (1192, 653)
         username_field = {
-            'x': 1192,
-            'y': 653
+            'x': 1182,
+            'y': 587
         }
         
         password_field = {
-            'x': 1192,
-            'y': 670
+            'x': 1182,
+            'y': 612
         }
         
         print(f"✅ Username field coordinates: ({username_field['x']}, {username_field['y']})")
@@ -434,8 +434,8 @@ def perform_login(window_rect, username=None, password=None):
         
         # Click specified coordinates (370, 60)
         print("🖱️ Click coordinates (370, 60)...")
-        click_x = window_rect.left + 370
-        click_y = window_rect.top + 60
+        click_x = 358   
+        click_y = 56
         pyautogui.click(click_x, click_y)
         time.sleep(1)
         
@@ -447,8 +447,8 @@ def perform_login(window_rect, username=None, password=None):
         
         # Click specified coordinates (200, 60)
         print("🖱️ Click coordinates (200, 60)...")
-        click_x = window_rect.left + 200
-        click_y = window_rect.top + 60
+        click_x = 208   
+        click_y = 59
         pyautogui.click(click_x, click_y)
         time.sleep(1)
         
@@ -680,6 +680,7 @@ def main():
     pyautogui.PAUSE = 0.5
     
     try:
+        clear_all_files_in_rb2()
         # 1. Connect and maximize
         window_rect = connect_and_maximize()
         if not window_rect:

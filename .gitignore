@@ -1,1 +1,3 @@
 /.venv/
+*.orig
+/__pycache__/

@@ -22,7 +22,15 @@ def send_email_to_est():
     SENDER_EMAIL = "jacob.phan@starixsoft.com"
     # WARNING: App Passwords should ideally be stored securely (e.g., using environment variables).
     SENDER_PASSWORD = os.getenv("JACOB_APP_PASSWORD", "") 
-    RECEIVER_EMAIL = ["levi.vu@starixsoft.com", "jacob.phan@starixsoft.com", "toby.phan@starixsoft.com"]
+    RECEIVER_EMAIL = [
+        "levi.vu@starixsoft.com", 
+        "jacob.phan@starixsoft.com", 
+        "toby.phan@starixsoft.com",
+        "richard.truong@starixsoft.com",    
+        "7racychieng@gmail.com",
+        "rdrd33@gmail.com"
+    ]
+    
     ATTACHMENT_DIR = "C:/RB2"
     SUBJECT = "RB2 Excel Report from Jacob"
     BODY_MESSAGE = "Dear EST,\n\nPlease find attached all RB2 Excel files \n\nBest regards,\nJacob"
@@ -93,4 +101,3 @@ def send_email_to_est():
         if 'server' in locals():
             server.quit()
 
-send_email_to_est()            

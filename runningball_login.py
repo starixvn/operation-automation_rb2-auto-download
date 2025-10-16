@@ -496,14 +496,18 @@ def perform_login(window_rect, username=None, password=None):
                 weekday = match.group(1)  # Weekday abbreviation (e.g.: Tue)
                 date_part = match.group(2)  # Date part (e.g.: 23.09)
                 full_date = f"{weekday}, {date_part}"
-                
+                print(match)
                 # Find corresponding date part coordinates in OCR data
                 for i in range(len(data['text'])):
                     text = data['text'][i].strip()
                     confidence = int(data['conf'][i])
+                    temp_are_equals = text == date_part.strip()
+                    temp_is_higher = confidence > 20
+                    print(f'text: "{text}". date_part: "{date_part}". confidence: {confidence}. temp_are_equals: {temp_are_equals}. temp_is_higher: {temp_is_higher}')
+                    
                     
                     # Check if it's a date part (e.g.: 23.09)
-                    if text == date_part and confidence > 20:
+                    if date_part in text and confidence > 50:
                         x = data['left'][i]
                         y = data['top'][i]
                         w = data['width'][i]

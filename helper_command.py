@@ -3,7 +3,7 @@ import os
 import glob
 
 def execute_rb2_helper():
-    command= 'C:/RB2/Tools/RB2Helper.exe'
+    command= 'C:/RB2/Tools/RB2Helper/RB2Helper.exe'
     try:
         subprocess.run(command, check=True)
         print("✅ RB2Helper.exe executed successfully.")

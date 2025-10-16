@@ -19,6 +19,9 @@ def send_email_to_est():
         "7racychieng@gmail.com",
         "rdrd33@gmail.com"
     ]
+    # RECEIVER_EMAIL = [         
+    #     "jacob.phan@starixsoft.com"        
+    # ]
     
     ATTACHMENT_DIR = "C:/RB2/Combined"
     SUBJECT = "RB2 Excel Report from Jacob"
@@ -90,3 +93,5 @@ def send_email_to_est():
         if 'server' in locals():
             server.quit()
 
+if __name__ == "__main__":
+    send_email_to_est()

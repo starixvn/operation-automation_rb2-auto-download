@@ -1,4 +1,4 @@
-# Write function to delete all files in folder C:/RB2 
+
 import os
 import glob
 import smtplib
@@ -6,17 +6,6 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
-def clear_all_files_in_rb2():
-    """Delete all files in C:/RB2 directory"""
-
-    folder_path = "C:/RB2"
-    try:
-        files = glob.glob(os.path.join(folder_path, '*'))
-        for f in files:
-            os.remove(f)
-        print(f"✅ Deleted {len(files)} files from {folder_path}")
-    except Exception as e:
-        print(f"❌ Failed to delete files: {e}")
 
 def send_email_to_est():    
     SENDER_EMAIL = "jacob.phan@starixsoft.com"
@@ -31,7 +20,7 @@ def send_email_to_est():
         "rdrd33@gmail.com"
     ]
     
-    ATTACHMENT_DIR = "C:/RB2"
+    ATTACHMENT_DIR = "C:/RB2/Combined"
     SUBJECT = "RB2 Excel Report from Jacob"
     BODY_MESSAGE = "Dear EST,\n\nPlease find attached all RB2 Excel files \n\nBest regards,\nJacob"
     # --------------------

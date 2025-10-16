@@ -16,8 +16,8 @@ import cv2
 import numpy as np
 from datetime import datetime
 import base64
-from send_email_to_est import clear_all_files_in_rb2, send_email_to_est
-from excel_converter import convert_xls_to_xlsx
+from send_email_to_est import send_email_to_est
+from helper_command import execute_rb2_helper, clean_all_files_in_rb2
 def connect_and_maximize():
     
     """Connect to application and maximize, retry 3 times on failure"""
@@ -683,7 +683,7 @@ def main():
     pyautogui.PAUSE = 0.5
     
     try:
-        clear_all_files_in_rb2()
+        clean_all_files_in_rb2()
         # 1. Connect and maximize
         window_rect = connect_and_maximize()
         if not window_rect:
@@ -698,6 +698,7 @@ def main():
             print("🎉 Login process completed!")
         else:
             print("❌ Login process failed!")
+        execute_rb2_helper()
         send_email_to_est()
             
     except KeyboardInterrupt:

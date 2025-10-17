@@ -7,7 +7,7 @@ namespace RB2Helper;
 
 internal static class ExcelConverter
 {
-    private static readonly Dictionary<DateTime, string> mapFile = CreateMapFile();
+    private static readonly Dictionary<DateTime, string> MapFile = CreateMapFile();
     private const string RootDirectory = @"C:\RB2\Combined";
     public static void Prepare()
     {
@@ -28,7 +28,7 @@ internal static class ExcelConverter
 
     public static void Action()
     {
-        var dates = mapFile.Keys.OrderBy(d => d).ToList();
+        var dates = MapFile.Keys.OrderBy(d => d).ToList();
         foreach (var date in dates)
         {
             CombineFile(date);
@@ -37,14 +37,14 @@ internal static class ExcelConverter
 
     private static void CombineFile(DateTime date)
     {
-        if (!mapFile.ContainsKey(date) || !mapFile.ContainsKey(date.AddDays(1)))
+        if (!MapFile.ContainsKey(date) || !MapFile.ContainsKey(date.AddDays(1)))
         {
             return;
         }
 
-        var file1 = mapFile[date];
-        var file2 = mapFile[date.AddDays(1)];
-        var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}.xlsx");
+        var file1 = MapFile[date];
+        var file2 = MapFile[date.AddDays(1)];
+        var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}sc.xlsx");
         var outputXssfWorkbook = new XSSFWorkbook();
 
         using var inputFileStream1 = new FileStream(file1, FileMode.Open, FileAccess.Read);
@@ -94,6 +94,12 @@ internal static class ExcelConverter
                 continue;
             }
 
+            var playState = hssfRow.GetCell(10);
+            if (string.Equals(playState.StringCellValue , "Cancelled", StringComparison.CurrentCultureIgnoreCase))
+            {
+                continue;
+            }
+
             var xssfRow = outputXssfSheet.CreateRow(destRowIndex);
             for (var cellIdx = 0; cellIdx < hssfRow.LastCellNum; cellIdx++)
             {
@@ -108,16 +114,6 @@ internal static class ExcelConverter
 
             destRowIndex++;
         }
-    }
-
-    private static void CopyRow(
-        ISheet inputHssfSheet,
-        ISheet outputXssfSheet,
-        XSSFWorkbook outputXssfWorkbook,
-        int rowIdx)
-    {
-        var destRowIndex = outputXssfSheet.LastRowNum + 1;
-        CopyRow(inputHssfSheet, outputXssfSheet, outputXssfWorkbook, rowIdx, destRowIndex);
     }
 
     private static void CopyRow(

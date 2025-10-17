@@ -5,13 +5,15 @@ import schedule
 import time
 from datetime import datetime
 
+
 def execute_runningball_logic():
     """Execute runningball_login.py every hour"""
     try:
         # Get current hour and minute
         now = datetime.now()        
         current_minute = now.minute
-        if current_minute != 0:
+        current_hour = now.hour
+        if current_hour != 8 and current_hour != 13 and current_hour != 18:
             print_next_schedule()
             return
 
@@ -36,7 +38,7 @@ def schedule_hourly_task():
     """Schedule the execute_runningball_logic function to run every hour"""
     try:
         # Schedule the task every hour
-        schedule.every().minute.do(execute_runningball_logic)
+        schedule.every().hour.at(":00").do(execute_runningball_logic)
                 
         print("⏰ Scheduled execute_runningball_logic to run every hour.")
                 

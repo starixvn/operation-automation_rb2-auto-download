@@ -5,6 +5,13 @@ import schedule
 import time
 from datetime import datetime
 
+def execute_runningball_script():
+    script_path = os.path.join(os.path.dirname(__file__), 'runningball_login.py')
+    if os.path.isfile(script_path):
+        os.system(f'python "{script_path}"')
+        print("✅ runningball_login.py executed successfully.")
+    else:
+        print(f"❌ Script not found: {script_path}")
 
 def execute_runningball_logic():
     """Execute runningball_login.py every hour"""
@@ -17,12 +24,15 @@ def execute_runningball_logic():
             print_next_schedule()
             return
 
-        script_path = os.path.join(os.path.dirname(__file__), 'runningball_login.py')
-        if os.path.isfile(script_path):
-            os.system(f'python "{script_path}"')
-            print("✅ runningball_login.py executed successfully.")
-        else:
-            print(f"❌ Script not found: {script_path}")
+        execute_runningball_script()
+        
+        # Check for xlsx files in C:/RB2/Combined directory
+        xlsx_files = glob.glob("C:/RB2/Combined/*.xlsx")
+        while not xlsx_files:
+            print("No xlsx files found in C:/RB2/Combined. Running script again...")
+            execute_runningball_script()
+            xlsx_files = glob.glob("C:/RB2/Combined/*.xlsx")
+            
     except Exception as e:
         print(f"❌ Failed to execute runningball_login.py: {e}")
 

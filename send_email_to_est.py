@@ -44,7 +44,8 @@ def send_email_to_est():
         return
     
     if not excel_files:
-        print(f"Warning: No Excel files found in '{ATTACHMENT_DIR}'. Sending email without attachments.")
+        print(f"Warning: No Excel files found in '{ATTACHMENT_DIR}'")
+        return
     else:
         print(f"Found {len(excel_files)} Excel file(s) to attach.")
 

@@ -507,7 +507,7 @@ def perform_login(window_rect, username=None, password=None):
                     
                     
                     # Check if it's a date part (e.g.: 23.09)
-                    if date_part in text and confidence > 50:
+                    if date_part in text and confidence > 20:
                         x = data['left'][i]
                         y = data['top'][i]
                         w = data['width'][i]

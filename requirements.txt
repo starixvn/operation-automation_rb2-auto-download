@@ -4,7 +4,7 @@
 pywinauto>=0.6.8
 pyautogui>=0.9.54
 pywin32>=306
-
+pygetwindow>=0.0.9
 # Image Processing and OCR
 Pillow>=10.0.0
 opencv-python>=4.8.0

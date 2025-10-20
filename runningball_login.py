@@ -9,6 +9,7 @@ RunningBall Login Tool
 """
 
 from pywinauto import Application
+import pygetwindow as gw
 import pyautogui
 import time
 from PIL import ImageGrab
@@ -171,16 +172,26 @@ def format_date_for_filename(date_str):
         print(f"❌ Date formatting failed: {e}")
         return f"{date_str}-2024"  # Default format
 
-def handle_save_dialog(date_str, window_rect):
+def handle_save_dialog(index, window_rect):
     """Handle save dialog"""
     try:
-        print(f"      📝 Processing date: {date_str}")
+        print(f"      📝 Processing date: {index}")
         
         # Format date for filename
-        formatted_date = format_date_for_filename(date_str)
-        filename = f"C:/RB2/RB2-{formatted_date}sc"
+        
+        filename = f"C:/RB2/RB2-{index}-sc"
         
         print(f"      📁 Filename: {filename}")
+        
+        loop_wait_save_window = True
+        while loop_wait_save_window:
+            windows = gw.getWindowsWithTitle('Save')
+            if windows and len(windows) > 0:
+                loop_wait_save_window = False
+            else:
+                time.sleep(1)
+
+        win = windows[0]
         
         # Wait for dialog to fully load
         time.sleep(1)
@@ -191,18 +202,19 @@ def handle_save_dialog(date_str, window_rect):
         dialog_center_y = window_rect.top + window_rect.height() // 2
         
         # Estimated position of filename input box
-        filename_input_x = dialog_center_x
-        filename_input_y = dialog_center_y + 60  # Slightly below center
+        filename_input_x = win.left + 130
+        filename_input_y = win.top + 295
         
         print(f"      🎯 Click filename input box: ({filename_input_x}, {filename_input_y})")
+        time.sleep(1)
         pyautogui.click(filename_input_x, filename_input_y)
-        time.sleep(0.5)
+        time.sleep(1)
         
         # Clear input box and enter new filename
         pyautogui.hotkey('ctrl', 'a')
         time.sleep(0.2)
         pyautogui.typewrite(filename, interval=0.05)
-        time.sleep(0.5)
+        time.sleep(1)
         
         # Press Enter to save
         print("⌨️ Press Enter to save...")
@@ -222,7 +234,6 @@ def handle_save_dialog(date_str, window_rect):
                       
         print(f"      ✅ Save completed: {filename}.xls")
 
-        convert_xls_to_xlsx(f"{filename}.xls", f"{filename}.xlsx", delete_original=True)
         
     except Exception as e:
         print(f"      ❌ Save handling failed: {e}")
@@ -244,8 +255,9 @@ def handle_confirmation_dialog(window_rect):
         ok_button_y = dialog_center_y + 40
         
         print(f"         🖱️ Click OK button: ({ok_button_x}, {ok_button_y})")
+        time.sleep(1)
         pyautogui.click(ok_button_x, ok_button_y)
-        
+        time.sleep(1)
         print("         ✅ Confirmation dialog handled")
         
     except Exception as e:
@@ -267,6 +279,7 @@ def handle_timezone_settings(window_rect):
         timezone_dropdown_y = 246
         
         print(f"🎯 Click timezone dropdown: ({timezone_dropdown_x}, {timezone_dropdown_y})")
+        time.sleep(1)
         pyautogui.click(timezone_dropdown_x, timezone_dropdown_y)
         time.sleep(1.5)
         
@@ -275,6 +288,7 @@ def handle_timezone_settings(window_rect):
         
         # Method 1: Use keyboard quick search
         # Clear current input and directly enter complete timezone name
+        time.sleep(1)
         pyautogui.click(321, 331)
         time.sleep(1)
         
@@ -289,6 +303,7 @@ def handle_timezone_settings(window_rect):
         save_button_y = 1024  # Bottom slightly up
         
         print(f"✅ Click green checkmark save button: ({save_button_x}, {save_button_y})")
+        time.sleep(1)
         pyautogui.click(save_button_x, save_button_y)
         time.sleep(2)
         
@@ -406,8 +421,9 @@ def perform_login(window_rect, username=None, password=None):
         username_abs_x = window_rect.left + username_field['x']
         username_abs_y = window_rect.top + username_field['y']
         
+        time.sleep(1)
         pyautogui.click(username_abs_x, username_abs_y)
-        time.sleep(0.5)
+        time.sleep(1)
         pyautogui.hotkey('ctrl', 'a')
         time.sleep(0.2)
         pyautogui.typewrite(username, interval=0.1)
@@ -418,8 +434,9 @@ def perform_login(window_rect, username=None, password=None):
         password_abs_x = window_rect.left + password_field['x']
         password_abs_y = window_rect.top + password_field['y']
         
+        time.sleep(1)
         pyautogui.click(password_abs_x, password_abs_y)
-        time.sleep(0.5)
+        time.sleep(1)
         pyautogui.hotkey('ctrl', 'a')
         time.sleep(0.2)
         pyautogui.typewrite(password, interval=0.1)
@@ -434,24 +451,12 @@ def perform_login(window_rect, username=None, password=None):
         time.sleep(35)
         
         print("✅ Login operation completed")
-        
-        # Click specified coordinates (370, 60)
-        # print("🖱️ Click coordinates (370, 60)...")
-        # click_x = 358   
-        # click_y = 56
-        # pyautogui.click(click_x, click_y)
-        # time.sleep(1)
-        
-        # print("✅ SettingClick completed")
-        
-        # # Handle timezone settings
-        # print("🕐 Start handling timezone settings...")
-        # handle_timezone_settings(window_rect)
-        
+                
         # Click specified coordinates (200, 60)
         print("🖱️ Click coordinates (200, 60)...")
         click_x = 208   
         click_y = 59
+        time.sleep(1)
         pyautogui.click(click_x, click_y)
         time.sleep(1)
         
@@ -463,191 +468,50 @@ def perform_login(window_rect, username=None, password=None):
             return False
             
         # Recognize dates and text coordinates
-        print("📅 Attempting to recognize dates and coordinates on screen...")
-        try:
-            import pytesseract
-            pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-            
-            # Convert to OpenCV format
-            cv_image = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
-            gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-            
-            # Use OCR to recognize text and coordinates
-            data = pytesseract.image_to_data(gray, config='--psm 6', output_type=pytesseract.Output.DICT)
-            
-            print("📍 Recognized text and coordinates:")
-            print("=" * 60)
-            
-            # Create date coordinate mapping
-            date_coordinates = {}
-            
-            # Merge all text to find date formats with weekdays
-            all_text = ' '.join([data['text'][i].strip() for i in range(len(data['text'])) if data['text'][i].strip()])
-            
-            import re
-            
-            # Find date formats with weekday abbreviations (e.g.: Tue, 23.09)
-            weekday_date_pattern = r'([A-Za-z]{3}),?\s*(\d{1,2}\.\d{1,2})'
-            matches = re.finditer(weekday_date_pattern, all_text)
-            
-            print("📅 Looking for date formats with weekdays...")
-            
-            for match in matches:
-                weekday = match.group(1)  # Weekday abbreviation (e.g.: Tue)
-                date_part = match.group(2)  # Date part (e.g.: 23.09)
-                full_date = f"{weekday}, {date_part}"
-                print(match)
-                # Find corresponding date part coordinates in OCR data
-                for i in range(len(data['text'])):
-                    text = data['text'][i].strip()
-                    confidence = int(data['conf'][i])
-                    temp_are_equals = text == date_part.strip()
-                    temp_is_higher = confidence > 20
-                    print(f'text: "{text}". date_part: "{date_part}". confidence: {confidence}. temp_are_equals: {temp_are_equals}. temp_is_higher: {temp_is_higher}')
-                    
-                    
-                    # Check if it's a date part (e.g.: 23.09)
-                    if date_part in text and confidence > 20:
-                        x = data['left'][i]
-                        y = data['top'][i]
-                        w = data['width'][i]
-                        h = data['height'][i]
-                        
-                        # Calculate center point coordinates
-                        center_x = x + w // 2
-                        center_y = y + h // 2
-                        
-                        # Calculate absolute coordinates relative to window
-                        abs_x = window_rect.left + center_x
-                        abs_y = window_rect.top + center_y
-                        
-                        date_coordinates[full_date] = {
-                            'x': center_x,
-                            'y': center_y,
-                            'abs_x': abs_x,
-                            'abs_y': abs_y,
-                            'confidence': confidence,
-                            'date_only': date_part
-                        }
-                        
-                        print(f"✅ Found: {full_date} at coordinates ({center_x}, {center_y})")
-                        break
-            
-            print("=" * 60)
-            print(f"📝 Complete recognized text: {all_text}")
-            
-            # Display date coordinate mapping (only show date formats with weekdays)
-            print("\n📅 Date coordinate mapping with weekdays:")
-            print("=" * 60)
-            
-            # Store dates in local variables
-            found_dates_list = []
-            
-            if date_coordinates:
-                # First collect all date data
-                for full_date, coords in date_coordinates.items():
-                    x = coords['x']
-                    y = coords['y']
-                    abs_x = coords['abs_x']
-                    abs_y = coords['abs_y']
-                    confidence = coords['confidence']
-                    date_only = coords['date_only']
-                    
-                    # Store dates in local variables
-                    found_dates_list.append({
-                        'date': date_only,
-                        'full_date': full_date,
-                        'x': x,
-                        'y': y,
-                        'abs_x': abs_x,
-                        'abs_y': abs_y,
-                        'confidence': confidence
-                    })
-                
-                # Sort by date order (DD.MM format)
-                def parse_date_for_sorting(date_str):
-                    """Parse DD.MM format date for sorting"""
-                    try:
-                        day, month = date_str.split('.')
-                        return (int(month), int(day))  # Sort by month first, then by date
-                    except:
-                        return (99, 99)  # Put unparseable dates at the end
-                
-                found_dates_list.sort(key=lambda x: parse_date_for_sorting(x['date']))
-                
-                # Display sorted dates
-                print("📅 Results sorted by date order:")
-                for date_info in found_dates_list:
-                    date_only = date_info['date']
-                    full_date = date_info['full_date']
-                    x = date_info['x']
-                    y = date_info['y']
-                    abs_x = date_info['abs_x']
-                    abs_y = date_info['abs_y']
-                    confidence = date_info['confidence']
-                    
-                    print(f"📆 {date_only}=>X={x},Y={y} (Relative coordinates) [{full_date}]")
-                    print(f"📆 {date_only}=>X={abs_x},Y={abs_y} (Absolute coordinates) [{full_date}]")
-                    print(f"   🎯 Confidence: {confidence}%")
-                    print("-" * 40)
-                
-                # Click each coordinate in date order
-                print("\n🖱️ Click each coordinate in date order:")
-                print("=" * 60)
-                
-                for i, date_info in enumerate(found_dates_list, 1):
-                    date = date_info['date']
-                    full_date = date_info['full_date']
-                    abs_x = date_info['abs_x']
-                    abs_y = date_info['abs_y']
-                    
-                    print(f"🎯 Click {i} date: {full_date} (in date order)")
-                    print(f"   📍 coordinates: ({abs_x}, {abs_y})")
-                    
-                    # Click coordinates
-                    pyautogui.click(abs_x, abs_y)
-                    print(f"   ✅ Clicked {date}")
-                    
-            
-                    # Then click download coordinates (60, 200)
-                    print("🖱️ Click coordinates (60, 200)...")
-                    click_x2 = window_rect.left + 60
-                    click_y2 = window_rect.top + 200
-                    pyautogui.click(click_x2, click_y2)
-                    time.sleep(1)
-                    
-                    print("✅ Download click completed")
-                    
-                    
-                    # Pause two seconds waiting for save dialog to appear
-                    print("   ⏰ Waiting for save dialog to appear...")
-                    time.sleep(2)
-                    
-                    # Handle save dialog
-                    print("   💾 Processing save dialog...")
-                    handle_save_dialog(date, window_rect)
-                    
-                    print("-" * 40)
-                
-                print(f"🎉 Completed clicking in date order {len(found_dates_list)} date")
-                print(f"📋 Click order: {[d['date'] for d in found_dates_list]}")
-                
-            else:
-                print("⚠️ No dates with weekday abbreviations found")
-            
-            print("=" * 60)
-                        
-        except ImportError:
-            print("⚠️ tesseract not installed, cannot perform OCR recognition")
-        except Exception as ocr_error:
-            print(f"❌ OCR recognition failed: {ocr_error}")
+        download_all_data(window_rect)
         
         return True
         
     except Exception as e:
         print(f"❌ Login failed: {e}")
         return False
-
+def download_all_data(window_rect):
+    # Recognize dates and text coordinates
+    print("📅 Attempting to download all excel files...")
+    try:
+        print("=" * 60)
+        download_data(185, 175, 1, window_rect)
+        download_data(440, 175, 2, window_rect)
+        download_data(695, 175, 3, window_rect)
+        download_data(950, 175, 4, window_rect)
+        download_data(1205, 175, 5, window_rect)
+        download_data(1460, 175, 6, window_rect)
+        download_data(1715, 175, 7, window_rect)
+                
+        print("=" * 60)
+                    
+    
+    except Exception as e:
+        print(f"❌ Error occurred: {e} when try downloading data")
+def download_data(x, y, index, window_rect) :
+    print(f"🖱️ Click coordinates ({x}, {y}) for date {index}")
+    time.sleep(1)
+    pyautogui.click(x, y)
+    time.sleep(1)
+    
+    
+    # Then click download coordinates (60, 200)
+    print("🖱️ Click coordinates (47, 127) on download button...")
+    
+    time.sleep(1)
+    pyautogui.click(60, 200)
+    time.sleep(1)
+    
+    print("✅ Download click completed")
+            
+    # Handle save dialog
+    print("   💾 Processing save dialog...")
+    handle_save_dialog(index, window_rect)
 def cleanup_screenshots():
     """Clean up all screenshot files"""
     try:
@@ -689,7 +553,7 @@ def main():
     try:
         clean_all_files_in_rb2()
         # 1. Connect and maximize
-        window_rect = connect_and_maximize()
+        window_rect = connect_and_maximize()        
         if not window_rect:
             print("❌ Unable to connect to application")
             return
@@ -702,8 +566,8 @@ def main():
             print("🎉 Login process completed!")
         else:
             print("❌ Login process failed!")
-        execute_rb2_helper()
-        send_email_to_est()
+        #execute_rb2_helper()
+        #send_email_to_est()
             
     except KeyboardInterrupt:
         print("\n⏹️ User interrupted operation")

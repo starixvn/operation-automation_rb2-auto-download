@@ -7,7 +7,6 @@ namespace RB2Helper;
 
 internal static class ExcelConverter
 {
-    private static readonly Dictionary<DateTime, string> MapFile = CreateMapFile();
     private const string RootDirectory = @"C:\RB2\Combined";
     public static void Prepare()
     {
@@ -28,51 +27,88 @@ internal static class ExcelConverter
 
     public static void Action()
     {
-        var dates = MapFile.Keys.OrderBy(d => d).ToList();
-        foreach (var date in dates)
+        List<FileStream> fileStreams = [];
+        List<HSSFWorkbook> workbooks = [];
+        try
         {
-            CombineFile(date);
+            var files = Directory.GetFiles(@"C:\RB2", "*.xls", SearchOption.TopDirectoryOnly);
+            fileStreams = files.Select(f => new FileStream(f, FileMode.Open, FileAccess.Read)).ToList();
+            workbooks = fileStreams.Select(fs => new HSSFWorkbook(fs)).ToList();
+            var sheets = workbooks.Select(wb => wb.GetSheetAt(0)).ToList();
+            var dates = GetAllDateTime(sheets);
+
+            foreach (var date in dates)
+            {
+                CombineFile(date, sheets);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        finally
+        {
+            fileStreams.ForEach(f => f.Dispose());
+            workbooks.ForEach(w =>
+            {
+                w.Close();
+                w.Dispose();
+            });
         }
     }
 
-    private static void CombineFile(DateTime date)
+    private static void CombineFile(DateTime date, List<ISheet> sheets)
     {
-        if (!MapFile.ContainsKey(date) || !MapFile.ContainsKey(date.AddDays(1)))
-        {
-            return;
-        }
-
-        var file1 = MapFile[date];
-        var file2 = MapFile[date.AddDays(1)];
         var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}sc.xlsx");
-        var outputXssfWorkbook = new XSSFWorkbook();
 
-        using var inputFileStream1 = new FileStream(file1, FileMode.Open, FileAccess.Read);
-        var inputHssfWorkbook1 = new HSSFWorkbook(inputFileStream1);
-        var inputHssfSheet1 = inputHssfWorkbook1.GetSheetAt(0);
+        using var outputXssfWorkbook = new XSSFWorkbook();
+        var outputXssfSheet = outputXssfWorkbook.CreateSheet("RB fixtures");
 
-        using var inputFileStream2 = new FileStream(file2, FileMode.Open, FileAccess.Read);
-        var inputHssfWorkbook2 = new HSSFWorkbook(inputFileStream2);
-        var inputHssfSheet2 = inputHssfWorkbook2.GetSheetAt(0);
-
-        var outputXssfSheet = outputXssfWorkbook.CreateSheet(inputHssfSheet1.SheetName);
         // Copy column widths
         for (var colIdx = 0; colIdx < 256; colIdx++)
         {
-            outputXssfSheet.SetColumnWidth(colIdx, inputHssfSheet1.GetColumnWidth(colIdx));
+            outputXssfSheet.SetColumnWidth(colIdx, sheets[0].GetColumnWidth(colIdx));
         }
-        outputXssfSheet.DefaultRowHeight = inputHssfSheet1.DefaultRowHeight;
-        outputXssfSheet.DefaultColumnWidth = inputHssfSheet1.DefaultColumnWidth;
+        outputXssfSheet.DefaultRowHeight = sheets[0].DefaultRowHeight;
+        outputXssfSheet.DefaultColumnWidth = sheets[0].DefaultColumnWidth;
 
-        CopyRow(inputHssfSheet1, outputXssfSheet, outputXssfWorkbook, 0, 0);
+        CopyRow(sheets[0], outputXssfSheet, outputXssfWorkbook, 0, 0);
 
         var from = date.AddHours(12);
         var to = date.AddHours(36).AddMinutes(-1);
-        CopySheet(inputHssfSheet1, outputXssfSheet, outputXssfWorkbook, from, to);
-        CopySheet(inputHssfSheet2, outputXssfSheet, outputXssfWorkbook, from, to);
 
+        foreach (var sheet in sheets)
+        {
+            CopySheet(sheet, outputXssfSheet, outputXssfWorkbook, from, to);
+        }
+                
         using var outputFileStream = new FileStream(combinedFile, FileMode.Create, FileAccess.Write);
         outputXssfWorkbook.Write(outputFileStream);
+    }
+
+    private static List<DateTime> GetAllDateTime(List<ISheet> sheets)
+    {
+        var dates = new List<DateTime>();
+
+        foreach (var sheet in sheets)
+        {
+            for (var rowIdx = 1; rowIdx <= sheet.LastRowNum; rowIdx++)
+            {
+                var row = sheet.GetRow(rowIdx);
+                if (row == null)
+                {
+                    continue;
+                }
+                var dateCell = row.GetCell(6);
+                var dateTime = GetStartTime(dateCell.StringCellValue);
+                if (dateTime != DateTime.MinValue && !dates.Contains(dateTime))
+                {
+                    dates.Add(dateTime);
+                }
+            }
+        }
+
+        return dates.Select(d=>d.Date).Distinct().ToList();
     }
 
     private static void CopySheet(ISheet inputHssfSheet, ISheet outputXssfSheet, XSSFWorkbook outputXssfWorkbook, DateTime dateFrom, DateTime dateTo)
@@ -104,12 +140,13 @@ internal static class ExcelConverter
             for (var cellIdx = 0; cellIdx < hssfRow.LastCellNum; cellIdx++)
             {
                 var hssfCell = hssfRow.GetCell(cellIdx);
-                if (hssfCell != null)
+                if (hssfCell == null)
                 {
-                    var xssfCell = xssfRow.CreateCell(cellIdx);
-                    CopyCellValue(hssfCell, xssfCell);
-                    CopyCellStyle(hssfCell, xssfCell, outputXssfWorkbook);
+                    continue;
                 }
+                var xssfCell = xssfRow.CreateCell(cellIdx);
+                CopyCellValue(hssfCell, xssfCell);
+                CopyCellStyle(hssfCell, xssfCell, outputXssfWorkbook);
             }
 
             destRowIndex++;

@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 
-def send_email_to_est():    
+def send_email_to_est(sport_name):    
     SENDER_EMAIL = "jacob.phan@starixsoft.com"
     # WARNING: App Passwords should ideally be stored securely (e.g., using environment variables).
     SENDER_PASSWORD = os.getenv("JACOB_APP_PASSWORD", "") 
@@ -19,12 +19,10 @@ def send_email_to_est():
         "7racychieng@gmail.com",
         "rdrd33@gmail.com"
     ]
-    # RECEIVER_EMAIL = [         
-    #     "jacob.phan@starixsoft.com"        
-    # ]
+    RECEIVER_EMAIL = ["jacob.phan@starixsoft.com"]
     
     ATTACHMENT_DIR = "C:/RB2/Combined"
-    SUBJECT = "RB2 Excel Report from Jacob"
+    SUBJECT = f"RB2 Excel for {sport_name}"
     BODY_MESSAGE = "Dear EST,\n\nPlease find attached all RB2 Excel files \n\nBest regards,\nJacob"
     # --------------------
     """

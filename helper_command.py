@@ -2,8 +2,8 @@ import subprocess
 import os
 import glob
 
-def execute_rb2_helper():
-    command= 'C:/RB2/Tools/RB2Helper/RB2Helper.exe'
+def execute_rb2_helper(sport_name):
+    command= ['C:/RB2/Tools/RB2Helper/RB2Helper.exe', sport_name]
     try:
         subprocess.run(command, check=True)
         print("✅ RB2Helper.exe executed successfully.")

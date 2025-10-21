@@ -19,7 +19,7 @@ def send_email_to_est(sport_name):
         "7racychieng@gmail.com",
         "rdrd33@gmail.com"
     ]
-    RECEIVER_EMAIL = ["jacob.phan@starixsoft.com"]
+    #RECEIVER_EMAIL = ["jacob.phan@starixsoft.com"]
     
     ATTACHMENT_DIR = "C:/RB2/Combined"
     SUBJECT = f"RB2 Excel for {sport_name}"

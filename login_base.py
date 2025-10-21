@@ -179,7 +179,7 @@ def handle_save_dialog(index, window_rect):
         
         # Format date for filename
         
-        filename = f"C:/RB2/RB2-{index}-sc"
+        filename = f"C:/RB2/RB2-{index}"
         
         print(f"      📁 Filename: {filename}")
         

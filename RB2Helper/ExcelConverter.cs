@@ -25,13 +25,21 @@ internal static class ExcelConverter
         }
     }
 
-    public static void Action()
+    public static void Action(string sport)
     {
         List<FileStream> fileStreams = [];
         List<HSSFWorkbook> workbooks = [];
         try
         {
             var files = Directory.GetFiles(@"C:\RB2", "*.xls", SearchOption.TopDirectoryOnly);
+            if (files.Length == 0)
+            {
+                Console.WriteLine("No files are detected");
+                return;
+            }
+
+            var firstFilename = Path.GetFileNameWithoutExtension(files[0]);
+            
             fileStreams = files.Select(f => new FileStream(f, FileMode.Open, FileAccess.Read)).ToList();
             workbooks = fileStreams.Select(fs => new HSSFWorkbook(fs)).ToList();
             var sheets = workbooks.Select(wb => wb.GetSheetAt(0)).ToList();
@@ -39,7 +47,7 @@ internal static class ExcelConverter
 
             foreach (var date in dates)
             {
-                CombineFile(date, sheets);
+                CombineFile(date, sheets, sport);
             }
         }
         catch (Exception e)
@@ -57,9 +65,9 @@ internal static class ExcelConverter
         }
     }
 
-    private static void CombineFile(DateTime date, List<ISheet> sheets)
+    private static void CombineFile(DateTime date, List<ISheet> sheets, string sportAbbreviation)
     {
-        var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}sc.xlsx");
+        var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}{sportAbbreviation}.xlsx");
 
         using var outputXssfWorkbook = new XSSFWorkbook();
         var outputXssfSheet = outputXssfWorkbook.CreateSheet("RB fixtures");

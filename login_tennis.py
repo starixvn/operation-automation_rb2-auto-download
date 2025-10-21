@@ -53,7 +53,7 @@ def main():
             print("🎉 Login process completed!")
         else:
             print("❌ Login process failed!")
-        execute_rb2_helper('tn')
+        execute_rb2_helper('tennis')
         send_email_to_est("Tennis")
             
     except KeyboardInterrupt:

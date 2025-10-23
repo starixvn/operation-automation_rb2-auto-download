@@ -38,16 +38,26 @@ internal static class ExcelConverter
                 return;
             }
 
-            var firstFilename = Path.GetFileNameWithoutExtension(files[0]);
-            
             fileStreams = files.Select(f => new FileStream(f, FileMode.Open, FileAccess.Read)).ToList();
             workbooks = fileStreams.Select(fs => new HSSFWorkbook(fs)).ToList();
             var sheets = workbooks.Select(wb => wb.GetSheetAt(0)).ToList();
             var dates = GetAllDateTime(sheets);
 
-            foreach (var date in dates)
+            if (sport == "sc")
             {
-                CombineFile(date, sheets, sport);
+                foreach (var date in dates)
+                {
+                    var from = date.AddHours(12);
+                    var to = from.AddDays(1).AddMinutes(-1);
+                    CombineFile(date, from, to, sheets, sport);
+                }
+            }
+            else
+            {
+                var date = dates.Min();
+                var from = date.AddHours(12);
+                var to = from.AddDays(7).AddMinutes(-1);
+                CombineFile(date, from, to, sheets, sport);
             }
         }
         catch (Exception e)
@@ -65,7 +75,7 @@ internal static class ExcelConverter
         }
     }
 
-    private static void CombineFile(DateTime date, List<ISheet> sheets, string sportAbbreviation)
+    private static void CombineFile(DateTime date, DateTime dateFrom, DateTime dateTo, List<ISheet> sheets, string sportAbbreviation)
     {
         var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}{sportAbbreviation}.xlsx");
 
@@ -82,12 +92,10 @@ internal static class ExcelConverter
 
         CopyRow(sheets[0], outputXssfSheet, outputXssfWorkbook, 0, 0);
 
-        var from = date.AddHours(12);
-        var to = date.AddHours(36).AddMinutes(-1);
-
+       
         foreach (var sheet in sheets)
         {
-            CopySheet(sheet, outputXssfSheet, outputXssfWorkbook, from, to);
+            CopySheet(sheet, outputXssfSheet, outputXssfWorkbook, dateFrom, dateTo);
         }
                 
         using var outputFileStream = new FileStream(combinedFile, FileMode.Create, FileAccess.Write);
@@ -289,20 +297,5 @@ internal static class ExcelConverter
         );
 
         return success ? dtObject : DateTime.MinValue;
-    }
-
-    public static Dictionary<DateTime, string> CreateMapFile()
-    {
-        var map = new Dictionary<DateTime, string>();
-        var files = Directory.GetFiles(@"C:\RB2", "*.xls", SearchOption.TopDirectoryOnly);
-        foreach (var file in files)
-        {
-            var name = Path.GetFileNameWithoutExtension(file);
-            name = name.Replace("RB2-", "").Replace("sc", "");
-            var date = DateTime.ParseExact(name, "dd-MM-yyyy", null);
-            map[date] = file;
-        }
-
-        return map;
     }
 }

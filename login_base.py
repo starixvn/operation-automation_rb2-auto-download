@@ -448,7 +448,7 @@ def perform_login(window_rect, username=None, password=None):
         
         # Wait 60 seconds after login
         print("⏰ Wait 60 seconds after login...")
-        time.sleep(35)
+        time.sleep(60)
         
         print("✅ Login operation completed")
                 

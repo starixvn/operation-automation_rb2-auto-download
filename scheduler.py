@@ -24,17 +24,21 @@ def execute_runningball_logic():
         now = datetime.now()        
         current_minute = now.minute
         current_hour = now.hour
-        if current_hour != 8 and current_hour != 13 and current_hour != 18:
+        if current_hour != 8:
             print_next_schedule()
             return
-
-        execute_runningball_script('login_soccer.py')
-        execute_runningball_script('login_basketball.py')
-        execute_runningball_script('login_tennis.py')
-        execute_runningball_script('login_ice_hockey.py')
-        execute_runningball_script('login_cricket.py')
-                  
-            
+        execute_runningball_script('login_soccer.py')        
+        # if to day is sunday, then execute the script
+        if now.weekday() == 6:            
+            time.sleep(60)
+            execute_runningball_script('login_basketball.py')
+            time.sleep(60)
+            execute_runningball_script('login_tennis.py')
+            time.sleep(60)
+            execute_runningball_script('login_ice_hockey.py')
+            time.sleep(60)
+            execute_runningball_script('login_cricket.py')
+                                      
     except Exception as e:
         print(f"❌ Failed to execute runningball_login.py: {e}")
 
@@ -53,7 +57,7 @@ def schedule_hourly_task():
         schedule.every().hour.at(":00").do(execute_runningball_logic)
                 
         print("⏰ Scheduled execute_runningball_logic to run every hour.")
-                
+        print_next_schedule()                
         while True:
             schedule.run_pending()
             time.sleep(1)

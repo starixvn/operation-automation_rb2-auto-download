@@ -49,15 +49,12 @@ internal static class ExcelConverter
                 {
                     var from = date.AddHours(12);
                     var to = from.AddDays(1).AddMinutes(-1);
-                    CombineFile(date, from, to, sheets, sport);
+                    CombineFileForSoccer(date, from, to, sheets);
                 }
             }
             else
             {
-                var date = dates.Min();
-                var from = date.AddHours(12);
-                var to = from.AddDays(7).AddMinutes(-1);
-                CombineFile(date, from, to, sheets, sport);
+                CombineFileForOtherSports(sport, dates, sheets);
             }
         }
         catch (Exception e)
@@ -75,9 +72,13 @@ internal static class ExcelConverter
         }
     }
 
-    private static void CombineFile(DateTime date, DateTime dateFrom, DateTime dateTo, List<ISheet> sheets, string sportAbbreviation)
+    private static void CombineFileForOtherSports(string sport, List<DateTime> dates, List<ISheet> sheets)
     {
-        var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}{sportAbbreviation}.xlsx");
+        
+        var date = dates.Min();
+        var from = date.AddYears(-1);
+        var to = date.AddYears(1);
+        var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}{sport}.xlsx");
 
         using var outputXssfWorkbook = new XSSFWorkbook();
         var outputXssfSheet = outputXssfWorkbook.CreateSheet("RB fixtures");
@@ -92,12 +93,62 @@ internal static class ExcelConverter
 
         CopyRow(sheets[0], outputXssfSheet, outputXssfWorkbook, 0, 0);
 
-       
+
+        foreach (var sheet in sheets)
+        {
+            CopySheet(sheet, outputXssfSheet, outputXssfWorkbook, from, to);
+        }
+
+
+        var sportType = GetSportType(sport);
+        InsertSportType(outputXssfWorkbook, outputXssfSheet, sportType);
+
+        using var outputFileStream = new FileStream(combinedFile, FileMode.Create, FileAccess.Write);
+        outputXssfWorkbook.Write(outputFileStream);
+    }
+
+    private static void InsertSportType(XSSFWorkbook workbook, ISheet sheet, string sportType)
+    {
+        var headerRow = sheet.GetRow(0);
+        var headerCell = headerRow.CreateCell(2);
+        headerCell.SetCellValue("Sports");
+        CopyCellStyleXlsx(headerRow.GetCell(1), headerCell, workbook);
+
+        for (var rowIndex = 1; rowIndex <= sheet.LastRowNum; rowIndex++)
+        {
+            var row = sheet.GetRow(rowIndex);
+            var cell = row.CreateCell(2);
+            cell.SetCellValue(sportType);
+            CopyCellStyleXlsx(row.GetCell(1), cell, workbook);
+        }
+
+        sheet.AutoSizeColumn(2);
+    }
+
+
+    private static void CombineFileForSoccer(DateTime date, DateTime dateFrom, DateTime dateTo, List<ISheet> sheets)
+    {
+        var combinedFile = Path.Combine(@"C:\RB2\Combined", $"RB2-{date:dd-MM-yyyy}sc.xlsx");
+
+        using var outputXssfWorkbook = new XSSFWorkbook();
+        var outputXssfSheet = outputXssfWorkbook.CreateSheet("RB fixtures");
+
+        // Copy column widths
+        for (var colIdx = 0; colIdx < 256; colIdx++)
+        {
+            outputXssfSheet.SetColumnWidth(colIdx, sheets[0].GetColumnWidth(colIdx));
+        }
+        outputXssfSheet.DefaultRowHeight = sheets[0].DefaultRowHeight;
+        outputXssfSheet.DefaultColumnWidth = sheets[0].DefaultColumnWidth;
+
+        CopyRow(sheets[0], outputXssfSheet, outputXssfWorkbook, 0, 0);
+
+
         foreach (var sheet in sheets)
         {
             CopySheet(sheet, outputXssfSheet, outputXssfWorkbook, dateFrom, dateTo);
         }
-                
+
         using var outputFileStream = new FileStream(combinedFile, FileMode.Create, FileAccess.Write);
         outputXssfWorkbook.Write(outputFileStream);
     }
@@ -124,7 +175,7 @@ internal static class ExcelConverter
             }
         }
 
-        return dates.Select(d=>d.Date).Distinct().ToList();
+        return dates.Select(d => d.Date).Distinct().ToList();
     }
 
     private static void CopySheet(ISheet inputHssfSheet, ISheet outputXssfSheet, XSSFWorkbook outputXssfWorkbook, DateTime dateFrom, DateTime dateTo)
@@ -147,7 +198,7 @@ internal static class ExcelConverter
             }
 
             var playState = hssfRow.GetCell(10);
-            if (string.Equals(playState.StringCellValue , "Cancelled", StringComparison.CurrentCultureIgnoreCase))
+            if (string.Equals(playState.StringCellValue, "Cancelled", StringComparison.CurrentCultureIgnoreCase))
             {
                 continue;
             }
@@ -236,6 +287,16 @@ internal static class ExcelConverter
 
     private static void CopyCellStyle(ICell sourceCell, ICell targetCell, XSSFWorkbook targetWorkbook)
     {
+        CopyCellStyleInternal(sourceCell, targetCell, targetWorkbook, isSourceXlsx: false);
+    }
+
+    private static void CopyCellStyleXlsx(ICell sourceCell, ICell targetCell, XSSFWorkbook targetWorkbook)
+    {
+        CopyCellStyleInternal(sourceCell, targetCell, targetWorkbook, isSourceXlsx: true);
+    }
+
+    private static void CopyCellStyleInternal(ICell sourceCell, ICell targetCell, XSSFWorkbook targetWorkbook, bool isSourceXlsx)
+    {
         var sourceCellStyle = sourceCell.CellStyle;
         var targetCellStyle = targetWorkbook.CreateCellStyle();
 
@@ -261,8 +322,12 @@ internal static class ExcelConverter
         targetCellStyle.FillForegroundColor = sourceCellStyle.FillForegroundColor;
         targetCellStyle.FillBackgroundColor = sourceCellStyle.FillBackgroundColor;
 
-        // Copy font
-        var sourceFont = ((HSSFWorkbook)sourceCell.Sheet.Workbook).GetFontAt(sourceCellStyle.FontIndex);
+        // Copy font - handle both HSSF and XSSF workbooks
+        var sourceWorkbook = sourceCell.Sheet.Workbook;
+        var sourceFont = isSourceXlsx 
+            ? sourceWorkbook.GetFontAt(sourceCellStyle.FontIndex)
+            : ((HSSFWorkbook)sourceWorkbook).GetFontAt(sourceCellStyle.FontIndex);
+        
         var targetFont = targetWorkbook.CreateFont();
         targetFont.FontName = sourceFont.FontName;
         targetFont.FontHeightInPoints = sourceFont.FontHeightInPoints;
@@ -297,5 +362,19 @@ internal static class ExcelConverter
         );
 
         return success ? dtObject : DateTime.MinValue;
+    }
+
+  
+    private static string GetSportType(string sport)
+    {
+        return sport switch
+        {
+            "sc" => "Soccer",
+            "ck" => "Cricket",
+            "i.hockey" => "Ice Hockey",
+            "bb" => "Basketball",
+            "tennis" => "Tennis",
+            _ => "Other Sports"
+        };
     }
 }

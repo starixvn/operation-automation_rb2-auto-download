@@ -8,10 +8,17 @@ foreach (var arg in args)
     Console.WriteLine($"Arg: {arg}");
 }
 
+if (args.Length == 0)
+{
+    args = ["tennis"];
+}
+
 Console.WriteLine($"Sports: {args[0]}");
 
-ExcelConverter.Prepare();
+ExcelMerger.Prepare();
 
-ExcelConverter.Action(args[0]);
+ExcelMerger.Action(args[0]);
+
+Zipper.ZipOriginalFile();
 
 Console.WriteLine("Hello, World!");

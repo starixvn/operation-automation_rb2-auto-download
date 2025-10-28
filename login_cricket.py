@@ -19,7 +19,7 @@ from datetime import datetime
 import base64
 from send_email_to_est import send_email_to_est
 from helper_command import execute_rb2_helper, clean_all_files_in_rb2
-from login_base import connect_and_maximize, perform_login, cleanup_screenshots, kill_runningball_process
+from login_base import connect_and_maximize, perform_login, cleanup_screenshots, kill_runningball_process, download_all_excel_files
 
 def choose_sport():
     print("Choose Cricket:")
@@ -45,6 +45,7 @@ def main():
             return
         
         choose_sport()
+
         # 2. Execute login
         success = perform_login(window_rect)
         
@@ -53,6 +54,12 @@ def main():
             print("🎉 Login process completed!")
         else:
             print("❌ Login process failed!")
+        # 3. Download all other sports data
+        download_all_excel_files(window_rect)
+        print("\n" + "=" * 40)                    
+        print("Download all other sports data completed!")
+        
+        # 4. Execute rb2 helper
         execute_rb2_helper('ck')
         send_email_to_est("Cricket")
             

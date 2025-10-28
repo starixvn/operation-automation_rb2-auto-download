@@ -24,20 +24,19 @@ def execute_runningball_logic():
         now = datetime.now()        
         current_minute = now.minute
         current_hour = now.hour
-        if current_hour != 8:
+        if current_hour != 5:
             print_next_schedule()
             return
-        execute_runningball_script('login_soccer.py')        
-        # if to day is sunday, then execute the script
-        if now.weekday() == 6:            
-            time.sleep(60)
-            execute_runningball_script('login_basketball.py')
-            time.sleep(60)
-            execute_runningball_script('login_tennis.py')
-            time.sleep(60)
-            execute_runningball_script('login_ice_hockey.py')
-            time.sleep(60)
-            execute_runningball_script('login_cricket.py')
+            
+        execute_runningball_script('login_soccer.py')            
+        time.sleep(60)
+        execute_runningball_script('login_basketball.py')
+        time.sleep(60)
+        execute_runningball_script('login_tennis.py')
+        time.sleep(60)
+        execute_runningball_script('login_ice_hockey.py')
+        time.sleep(60)
+        execute_runningball_script('login_cricket.py')
                                       
     except Exception as e:
         print(f"❌ Failed to execute runningball_login.py: {e}")

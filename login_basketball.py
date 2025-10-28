@@ -45,6 +45,7 @@ def main():
             return
         
         choose_sport()
+
         # 2. Execute login
         success = perform_login(window_rect)
         
@@ -53,6 +54,12 @@ def main():
             print("🎉 Login process completed!")
         else:
             print("❌ Login process failed!")
+        # 3. Download all other sports data
+        download_all_excel_files(window_rect)
+        print("\n" + "=" * 40)                    
+        print("Download all other sports data completed!")
+        
+        # 4. Execute rb2 helper
         execute_rb2_helper('bb')
         send_email_to_est("Basketball")
             

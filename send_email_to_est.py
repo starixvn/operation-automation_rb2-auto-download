@@ -35,6 +35,7 @@ def send_email_to_est(sport_name):
     # Searches for .xls, .xlsx, and .xlsm files
     search_path = os.path.join(ATTACHMENT_DIR, "*.xls*")
     excel_files = glob.glob(search_path)
+    excel_files.append("C:/RB2/Combined/RB2.zip")
     
     print(f"APP_PASSWORD: {SENDER_PASSWORD} ")
     if not os.path.isdir(ATTACHMENT_DIR):

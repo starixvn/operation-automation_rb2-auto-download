@@ -189,13 +189,10 @@ def handle_save_dialog(index, window_rect):
             if windows and len(windows) > 0:
                 loop_wait_save_window = False
             else:
-                time.sleep(1)
+                time.sleep(0.2)
 
         win = windows[0]
-        
-        # Wait for dialog to fully load
-        time.sleep(1)
-        
+                
         # Try to find filename input box (usually in center-bottom of dialog)
         # According to screenshot, filename input box should be in dialog
         dialog_center_x = window_rect.left + window_rect.width() // 2
@@ -205,7 +202,7 @@ def handle_save_dialog(index, window_rect):
         filename_input_x = win.left + 130
         filename_input_y = win.top + 295
         
-        print(f"      🎯 Click filename input box: ({filename_input_x}, {filename_input_y})")
+        print(f"      🎯 Click filename input box: ({filename_input_x}, {filename_input_y})")        
         time.sleep(1)
         pyautogui.click(filename_input_x, filename_input_y)
         time.sleep(1)
@@ -230,7 +227,7 @@ def handle_save_dialog(index, window_rect):
         
         # Brief wait after save completion
         print("      ⏰ Save completed, waiting 2 seconds...")
-        time.sleep(2)
+        time.sleep(1)
                       
         print(f"      ✅ Save completed: {filename}.xls")
 
@@ -264,57 +261,6 @@ def handle_confirmation_dialog(window_rect):
         print(f"         ❌ Confirmation dialog handling failed: {e}")
         # Try ESC to close
         pyautogui.press('escape')
-
-def handle_timezone_settings(window_rect):
-    """Handle timezone settings and save"""
-    try:
-        print("🕐 Processing timezone settings...")
-        
-        # Wait for settings page to fully load
-        time.sleep(2)
-        
-        # According to screenshot, Timezone dropdown position (estimated coordinates)
-        # Dropdown on right side approximately x=370, y=270
-        timezone_dropdown_x = 366
-        timezone_dropdown_y = 246
-        
-        print(f"🎯 Click timezone dropdown: ({timezone_dropdown_x}, {timezone_dropdown_y})")
-        time.sleep(1)
-        pyautogui.click(timezone_dropdown_x, timezone_dropdown_y)
-        time.sleep(1.5)
-        
-        # Select America/Puerto_Rico timezone
-        print("📍 Force select timezone: HongKong")
-        
-        # Method 1: Use keyboard quick search
-        # Clear current input and directly enter complete timezone name
-        time.sleep(1)
-        pyautogui.click(321, 331)
-        time.sleep(1)
-        
-        # Press Enter to confirm selection
-        print("✅ Confirm selection America/Puerto_Rico")
-        pyautogui.press('enter')
-        time.sleep(0.5)
-        
-        # Click green checkmark save button in bottom right
-        # According to screenshot, green checkmark button is in bottom right
-        save_button_x = 1843  # Bottom right slightly left
-        save_button_y = 1024  # Bottom slightly up
-        
-        print(f"✅ Click green checkmark save button: ({save_button_x}, {save_button_y})")
-        time.sleep(1)
-        pyautogui.click(save_button_x, save_button_y)
-        time.sleep(2)
-        
-        # Handle "Data successfully exported!" confirmation dialog
-        print("      ✅ Handling confirmation dialog...")
-        handle_confirmation_dialog(window_rect)
-        
-        print("✅ Timezone settings saved")
-        
-    except Exception as e:
-        print(f"❌ Timezone settings processing failed: {e}")
 
 def encrypt_password(password):
     """Encrypt password using base64"""
@@ -467,32 +413,46 @@ def perform_login(window_rect, username=None, password=None):
         if not screenshot:
             return False
             
-        # Recognize dates and text coordinates
-        download_all_data(window_rect)
         
         return True
         
     except Exception as e:
         print(f"❌ Login failed: {e}")
         return False
-def download_all_data(window_rect):
+
+def download_all_excel_files(window_rect):
+    import datetime
+    print("📅 Attempting to download all excel files for other sports...")
+    print("Downloading data for week 1...")
+    download_all_data_for_a_week(window_rect, 1)
+
+    # click next 7 times
+    for i in range(7):
+        pyautogui.click(1870, 170)
+        time.sleep(1)
+
+    print("Downloading data for week 2...")
+    download_all_data_for_a_week(window_rect, 8)
+    print("✅ Download all excel files for other sports completed")
+
+def download_all_data_for_a_week(window_rect, index):
     # Recognize dates and text coordinates
-    print("📅 Attempting to download all excel files...")
+    print("📅 Attempting to download all excel files for a week...")
     try:
         print("=" * 60)
-        download_data(185, 175, 1, window_rect)
-        download_data(440, 175, 2, window_rect)
-        download_data(695, 175, 3, window_rect)
-        download_data(950, 175, 4, window_rect)
-        download_data(1205, 175, 5, window_rect)
-        download_data(1460, 175, 6, window_rect)
-        download_data(1715, 175, 7, window_rect)
+        download_data(185, 175, index, window_rect)
+        download_data(440, 175, index + 1, window_rect)
+        download_data(695, 175, index + 2, window_rect)
+        download_data(950, 175, index + 3, window_rect)
+        download_data(1205, 175, index + 4, window_rect)
+        download_data(1460, 175, index + 5, window_rect)
+        download_data(1715, 175, index + 6, window_rect)
                 
         print("=" * 60)
-                    
-    
+                        
     except Exception as e:
         print(f"❌ Error occurred: {e} when try downloading data")
+
 def download_data(x, y, index, window_rect) :
     print(f"🖱️ Click coordinates ({x}, {y}) for date {index}")
     time.sleep(1)
@@ -502,16 +462,15 @@ def download_data(x, y, index, window_rect) :
     
     # Then click download coordinates (60, 200)
     print("🖱️ Click coordinates (47, 127) on download button...")
-    
-    time.sleep(1)
-    pyautogui.click(60, 200)
-    time.sleep(1)
+        
+    pyautogui.click(60, 200)    
     
     print("✅ Download click completed")
             
     # Handle save dialog
     print("   💾 Processing save dialog...")
     handle_save_dialog(index, window_rect)
+
 def cleanup_screenshots():
     """Clean up all screenshot files"""
     try:

@@ -89,10 +89,7 @@ internal static class ExcelMerger
         var outputXssfSheet = outputXssfWorkbook.CreateSheet("RB fixtures");
 
         // Copy column widths
-        for (var colIdx = 0; colIdx < 256; colIdx++)
-        {
-            outputXssfSheet.SetColumnWidth(colIdx, sheets[0].GetColumnWidth(colIdx));
-        }
+       
         outputXssfSheet.DefaultRowHeight = sheets[0].DefaultRowHeight;
         outputXssfSheet.DefaultColumnWidth = sheets[0].DefaultColumnWidth;
 
@@ -103,26 +100,30 @@ internal static class ExcelMerger
         var sportType = GetSportType(sport);
         InsertSportType(outputXssfWorkbook, outputXssfSheet, sportType);
 
+        for (var colIdx = 0; colIdx < 256; colIdx++)
+        {
+            outputXssfSheet.AutoSizeColumn(colIdx);
+        }
+
         using var outputFileStream = new FileStream(combinedFile, FileMode.Create, FileAccess.Write);
         outputXssfWorkbook.Write(outputFileStream);
     }
 
     private static void InsertSportType(XSSFWorkbook workbook, ISheet sheet, string sportType)
     {
+        ExcelHelper.InsertNewColumn(sheet, 2);
         var headerRow = sheet.GetRow(0);
-        var headerCell = headerRow.CreateCell(2);
+        var headerCell = headerRow.GetCell(2);
         headerCell.SetCellValue("Sports");
         ExcelHelper.CopyCellStyleXlsx(headerRow.GetCell(1), headerCell, workbook);
 
         for (var rowIndex = 1; rowIndex <= sheet.LastRowNum; rowIndex++)
         {
             var row = sheet.GetRow(rowIndex);
-            var cell = row.CreateCell(2);
+            var cell = row.GetCell(2);
             cell.SetCellValue(sportType);
             ExcelHelper.CopyCellStyleXlsx(row.GetCell(1), cell, workbook);
         }
-
-        sheet.AutoSizeColumn(2);
     }
 
     private static void CombineFileForSoccer(DateTime date, DateTime dateFrom, DateTime dateTo, List<ISheet> sheets)
@@ -132,18 +133,18 @@ internal static class ExcelMerger
         using var outputXssfWorkbook = new XSSFWorkbook();
         var outputXssfSheet = outputXssfWorkbook.CreateSheet("RB fixtures");
 
-        // Copy column widths
-        for (var colIdx = 0; colIdx < 256; colIdx++)
-        {
-            outputXssfSheet.SetColumnWidth(colIdx, sheets[0].GetColumnWidth(colIdx));
-        }
         outputXssfSheet.DefaultRowHeight = sheets[0].DefaultRowHeight;
         outputXssfSheet.DefaultColumnWidth = sheets[0].DefaultColumnWidth;
 
         ExcelHelper.CopyRow(sheets[0], outputXssfSheet, outputXssfWorkbook, 0, 0);
 
         ExcelHelper.CopySheet(sheets, outputXssfSheet, outputXssfWorkbook, dateFrom, dateTo);
-        
+
+        for (var colIdx = 0; colIdx < 256; colIdx++)
+        {
+            outputXssfSheet.AutoSizeColumn(colIdx);
+        }
+
         using var outputFileStream = new FileStream(combinedFile, FileMode.Create, FileAccess.Write);
         outputXssfWorkbook.Write(outputFileStream);
     }

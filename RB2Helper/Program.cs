@@ -2,6 +2,7 @@
 
 using RB2Helper;
 
+
 // Get arguments from command line
 foreach (var arg in args)
 {

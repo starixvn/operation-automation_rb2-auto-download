@@ -286,4 +286,34 @@ public static class ExcelHelper
         };
     }
 
+    public static void InsertNewColumn(ISheet sheet, int index)
+    {
+        // Iterate through all rows in the sheet
+        for (var rowIdx = 0; rowIdx <= sheet.LastRowNum; rowIdx++)
+        {
+            var row = sheet.GetRow(rowIdx);
+            if (row == null)
+            {
+                continue;
+            }
+
+            // Find the last cell index to determine how many cells need to be shifted
+            var lastCellNum = row.LastCellNum;
+            if (lastCellNum <= index)
+            {
+                continue;
+            }
+
+            // Shift cells from right to left to avoid overwriting
+            for (var cellIdx = lastCellNum; cellIdx > index; cellIdx--)
+            {
+                var sourceCell = row.GetCell(cellIdx - 1);
+                var targetCell = row.GetCell(cellIdx) ?? row.CreateCell(cellIdx);
+
+                // Copy cell value and style
+                CopyCellValue(sourceCell, targetCell);
+                targetCell.CellStyle = sourceCell.CellStyle;
+            }
+        }
+    }
 }

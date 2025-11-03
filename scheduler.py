@@ -27,15 +27,13 @@ def execute_runningball_logic():
         if current_hour != 5:
             print_next_schedule()
             return
-            
-        execute_runningball_script('login_soccer.py')            
-        time.sleep(60)
+                                      
         execute_runningball_script('login_basketball.py')
-        time.sleep(60)
+        time.sleep(120)
         execute_runningball_script('login_tennis.py')
-        time.sleep(60)
+        time.sleep(120)
         execute_runningball_script('login_ice_hockey.py')
-        time.sleep(60)
+        time.sleep(120)
         execute_runningball_script('login_cricket.py')
                                       
     except Exception as e:
@@ -64,5 +62,7 @@ def schedule_hourly_task():
         print("❌ The 'schedule' library is not installed. Please install it using 'pip install schedule'.")
     except Exception as e:
         print(f"❌ Scheduling failed: {e}")
-if __name__ == "__main__":
+if __name__ == "__main__":    
+           
     schedule_hourly_task()                
+    time.sleep(60)

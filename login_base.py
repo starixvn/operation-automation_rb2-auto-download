@@ -190,7 +190,7 @@ def handle_save_dialog(index, window_rect):
                 loop_wait_save_window = False
             else:
                 time.sleep(0.2)
-
+        time.sleep(3)
         win = windows[0]
                 
         # Try to find filename input box (usually in center-bottom of dialog)
@@ -288,7 +288,7 @@ def get_credentials():
     """Get credentials with encrypted password"""
     # Default credentials - password is base64 encoded
     username = "OW078"
-    encrypted_password = "TWFrYW5uYXMyQEA="  # Base64 encoded
+    encrypted_password = "TWFrYW5uYXMzQEA="  # Base64 encoded
     
     # Decrypt password
     password = decrypt_password(encrypted_password)

@@ -23,10 +23,11 @@ from login_base import connect_and_maximize, perform_login, cleanup_screenshots,
 
 def choose_sport():
     print("Choose Ice Hockey:")
+    time.sleep(5)
     pyautogui.click(1175, 555)
-    time.sleep(1)
+    time.sleep(2)
     pyautogui.click(1175, 632)
-    time.sleep(1)
+    time.sleep(2)
 def main():
     """Main function"""
     print("🎯 Ice Hockey Login Tool")

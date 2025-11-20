@@ -24,7 +24,7 @@ def execute_runningball_logic():
         now = datetime.now()        
         current_minute = now.minute
         current_hour = now.hour
-        if current_hour != 5:
+        if current_hour % 4 != 0:
             print_next_schedule()
             return
                                       
@@ -42,17 +42,15 @@ def execute_runningball_logic():
 def print_next_schedule():
     """Print information about the next scheduled task"""
     # get the next hour
-    now = datetime.now()
-    current_hour = now.hour
-    next_hour = (current_hour + 1) % 24
-    print(f"📅 Next scheduled execution at {next_hour:02d}:00")
+    next_schedule = schedule.next_run()
+    print(f"📅 Next scheduled execution at {next_schedule}")
 
 def schedule_hourly_task():
     """Schedule the execute_runningball_logic function to run every hour"""
     try:
         # Schedule the task every hour
-        schedule.every().hour.at(":00").do(execute_runningball_logic)
-                
+        schedule.every(1).hours.at(":10").do(execute_runningball_logic)
+        
         print("⏰ Scheduled execute_runningball_logic to run every hour.")
         print_next_schedule()                
         while True:
@@ -63,6 +61,12 @@ def schedule_hourly_task():
     except Exception as e:
         print(f"❌ Scheduling failed: {e}")
 if __name__ == "__main__":    
-           
+    # execute_runningball_script('login_basketball.py')
+    # time.sleep(120)
+    # execute_runningball_script('login_tennis.py')
+    # time.sleep(120)
+    # execute_runningball_script('login_ice_hockey.py')
+    # time.sleep(120)
+    # execute_runningball_script('login_cricket.py')
     schedule_hourly_task()                
     time.sleep(60)

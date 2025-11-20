@@ -9,17 +9,23 @@ foreach (var arg in args)
     Console.WriteLine($"Arg: {arg}");
 }
 
-if (args.Length == 0)
+if (args.Length <= 0)
 {
-    args = ["tennis"];
+    args = ["test"];
 }
 
-Console.WriteLine($"Sports: {args[0]}");
+if (args[0] == "test")
+{
+    await Uploader.UploadFile(@"C:\BG\RB2-12-07-2026tennis.xlsx");
+}
 
-ExcelMerger.Prepare();
+else
+{
+    ExcelMerger.Prepare();
+    ExcelMerger.Action(args[0]);
+    Zipper.ZipOriginalFile();
+    await Uploader.UploadAllFilesToInfoSite();
+}
 
-ExcelMerger.Action(args[0]);
-
-Zipper.ZipOriginalFile();
 
 Console.WriteLine("Hello, World!");

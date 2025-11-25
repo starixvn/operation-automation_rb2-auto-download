@@ -40,8 +40,7 @@ internal static class ExcelMerger
             fileStreams = files.Select(f => new FileStream(f, FileMode.Open, FileAccess.Read)).ToList();
             workbooks = fileStreams.Select(fs => new HSSFWorkbook(fs)).ToList();
             var sheets = workbooks.Select(wb => wb.GetSheetAt(0)).ToList();
-            var dates = ExcelHelper.GetAllDateTime(sheets);
-
+            
             if (sport == "sc")
             {
                 for (var i = 0; i < 14; i++)

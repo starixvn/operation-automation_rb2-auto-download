@@ -10,7 +10,7 @@ from email.mime.application import MIMEApplication
 def send_email_to_est(sport_name):    
     SENDER_EMAIL = "jacob.phan@starixsoft.com"
     # WARNING: App Passwords should ideally be stored securely (e.g., using environment variables).
-    SENDER_PASSWORD = os.getenv("JACOB_APP_PASSWORD", "") 
+    SENDER_PASSWORD = "hiqubwoyltpxsiyz" 
     RECEIVER_EMAIL = [
         "levi.vu@starixsoft.com", 
         "jacob.phan@starixsoft.com", 

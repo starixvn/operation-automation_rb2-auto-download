@@ -16,7 +16,7 @@ if (args.Length <= 0)
 
 if (args[0] == "test")
 {
-    await Uploader.UploadFile(@"C:\BG\RB2-12-07-2026tennis.xlsx");
+    await Uploader.UploadFile(@"C:\BG\RB2-23-11-2025tennis.xlsx");
 }
 
 else

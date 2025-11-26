@@ -10,7 +10,7 @@ def execute_runningball_logic_with_timeout():
     """Create and start a process with a timeout."""
     
     # 1. Create a child process
-    process = multiprocessing.Process(target=execute_runningball_logic)
+    process = multiprocessing.Process(target=download_all_excel_files)
     
     print(f"[{datetime.now().strftime('%H:%M:%S')}] Starting child process. Timeout: 1 hour.")
     process.start()
@@ -56,18 +56,19 @@ def execute_runningball_logic():
         if current_hour % 4 != 0:
             print_next_schedule()
             return
-                                      
-        execute_runningball_script('login_basketball.py')
-        time.sleep(120)
-        execute_runningball_script('login_tennis.py')
-        time.sleep(120)
-        execute_runningball_script('login_ice_hockey.py')
-        time.sleep(120)
-        execute_runningball_script('login_cricket.py')
+        execute_runningball_logic_with_timeout()
                                       
     except Exception as e:
         print(f"❌ Failed to execute runningball_login.py: {e}")
 
+def download_all_excel_files():
+    execute_runningball_script('login_basketball.py')
+    time.sleep(120)
+    execute_runningball_script('login_tennis.py')
+    time.sleep(120)
+    execute_runningball_script('login_ice_hockey.py')
+    time.sleep(120)
+    execute_runningball_script('login_cricket.py')
 def print_next_schedule():
     """Print information about the next scheduled task"""
     # get the next hour
@@ -78,9 +79,9 @@ def schedule_hourly_task():
     """Schedule the execute_runningball_logic function to run every hour"""
     try:
         # Schedule the task every hour
-        schedule.every().hour.at(":00").do(execute_runningball_logic_with_timeout)
+        schedule.every().hour.at(":00").do(execute_runningball_logic)
         
-        print("⏰ Scheduled execute_runningball_logic_with_timeout to run every hour.")
+        print("⏰ Scheduled execute_runningball_logic to run every hour.")
         print_next_schedule()                
         while True:
             schedule.run_pending()
